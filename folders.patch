@@ -1,0 +1,50 @@
+Index: folders.cpp
+===================================================================
+--- folders.cpp	(revision 370)
++++ folders.cpp	(working copy)
+@@ -29,6 +29,7 @@
+ 
+ char ModuleName[] = "Folders";
+ HINSTANCE hInstance;
++struct MM_INTERFACE mmi;
+ 
+ CFoldersList &lstRegisteredFolders = CFoldersList(10); //the list
+ 
+@@ -155,6 +156,8 @@
+ 
+ 	return 0;
+ }
++
++HANDLE hTestPlugin;
+ #endif
+ 
+ extern "C" __declspec(dllexport) PLUGININFOEX *MirandaPluginInfoEx(DWORD mirandaVersion) 
+@@ -180,6 +183,7 @@
+ 	Log("%s", "Entering function " __FUNCTION__);
+ #endif
+ 	pluginLink = link;
++	mir_getMMI(&mmi);
+ 	//all initialization here
+ 	InitializeMirandaMemFunctions();
+ 	
+@@ -188,7 +192,7 @@
+ 	InitEvents();
+ 	
+ #ifdef _DEBUG	
+-	CreateServiceFunction(MS_FOLDERS_TEST_PLUGIN, TestPlugin);
++	hTestPlugin = CreateServiceFunction(MS_FOLDERS_TEST_PLUGIN, TestPlugin);
+ 	CLISTMENUITEM mi = {0};
+ 	
+ 	mi.cbSize=sizeof(mi);
+@@ -221,7 +225,10 @@
+ 	DestroyServices();
+ 	DestroyEvents();
+ 	UnhookEvents();
+-	
++#ifdef _DEBUG	
++	DestroyServiceFunction(hTestPlugin);
++#endif
++
+ #if _MSC_VER >= 1300
+ 	Log("%s", "Leaving function " __FUNCTION__);
+ #endif
